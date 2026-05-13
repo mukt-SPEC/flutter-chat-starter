@@ -20,7 +20,7 @@ class App extends ConsumerWidget {
         loading: () => const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
-        error: (_, __) => const LoginScreen(),
+        error: (_, _) => const LoginScreen(),
         data: (user) => user != null ? const ChatListScreen() : const LoginScreen(),
       ),
     );

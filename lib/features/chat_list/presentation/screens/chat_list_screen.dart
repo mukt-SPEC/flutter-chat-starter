@@ -130,7 +130,7 @@ class ChatListScreen extends ConsumerWidget {
                   return ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 110),
                     itemCount: conversations.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final conversation = conversations[index];
                       final otherUserId = conversation.participants.firstWhere(
@@ -365,7 +365,7 @@ class _NewChatCupertinoModalState
                   return ListView.separated(
                     shrinkWrap: true,
                     itemCount: users.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final user = users[index];
                       final hasExisting = existingPartners.contains(user.uid);
