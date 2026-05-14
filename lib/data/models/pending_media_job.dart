@@ -1,4 +1,4 @@
-enum PendingMediaType { image, video, audio }
+﻿enum PendingMediaType { image, video, audio }
 
 enum PendingMediaJobStatus { queued, uploading, failed }
 

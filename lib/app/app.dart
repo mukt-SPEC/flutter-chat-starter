@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/firebase_providers.dart';
+import '../core/theme.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/chat_list/presentation/screens/chat_list_screen.dart';
 import 'router.dart';
@@ -15,6 +16,8 @@ class App extends ConsumerWidget {
 
     return MaterialApp(
       title: 'Flutter Chat Starter',
+      theme: AppTheme.light,
+      debugShowCheckedModeBanner: false,
       routes: buildAppRoutes(),
       home: authState.when(
         loading: () => const Scaffold(

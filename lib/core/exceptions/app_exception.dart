@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -39,9 +39,17 @@ class AppExceptionMapper {
     }
 
     if (error is FirebaseException) {
+      String message = error.message ?? fallbackMessage;
+      if (error.code == 'failed-precondition' &&
+          message.contains('index')) {
+        message = 'This query requires a Firestore index. '
+            'Please check the debug console for the creation link, '
+            'or create it manually in the Firebase Console.';
+      }
+
       return AppException(
         code: error.code,
-        message: error.message ?? fallbackMessage,
+        message: message,
         cause: error,
         stackTrace: stackTrace,
       );

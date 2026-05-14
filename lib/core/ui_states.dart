@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class AppLoadingState extends StatelessWidget {
   const AppLoadingState({super.key, this.message});
@@ -90,9 +90,9 @@ class AppEmptyState extends StatelessWidget {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.black54,
-                  ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                    ),
             ),
           ],
         ),

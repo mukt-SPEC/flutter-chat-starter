@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_chat_starter/core/firebase_providers.dart';
 import 'package:flutter_chat_starter/data/models/user_profile.dart';

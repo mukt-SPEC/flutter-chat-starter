@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +35,7 @@ class ChatListScreen extends ConsumerWidget {
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FloatingActionButton.small(
+          FloatingActionButton(
             heroTag: 'chat-search-fab',
             onPressed: () => _showChatSearchDialog(context, ref),
             child: const Icon(Icons.search),
@@ -91,10 +91,9 @@ class ChatListScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'Filtering by: "$searchQuery"',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: Colors.black54),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                            ),
                       ),
                     ),
                     TextButton(
@@ -111,6 +110,7 @@ class ChatListScreen extends ConsumerWidget {
                 loading: () => const AppLoadingState(message: 'Loading chats...'),
                 error: (error, _) => AppErrorState(
                   message: _readableError(error),
+                  onRetry: () => ref.refresh(conversationsProvider),
                 ),
                 data: (conversations) {
                   if (conversations.isEmpty) {
