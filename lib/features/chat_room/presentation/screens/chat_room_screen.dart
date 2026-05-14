@@ -608,23 +608,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   Future<void> _startRecording() async {
     try {
-      if (await _recorder!.hasPermission()) {
-        final dir = await getTemporaryDirectory();
-        final path = '${dir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
-        await _recorder!.start(const RecordConfig(), path: path);
-        setState(() {
-          _isRecording = true;
-          _recordStartTime = DateTime.now();
-        });
-        _recordTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-          if (!_isRecording) return;
-          final elapsed =
-              DateTime.now().difference(_recordStartTime!);
+        if (await _recorder!.hasPermission()) {
+          final dir = await getTemporaryDirectory();
+          final path =
+              '${dir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
+          await _recorder!.start(const RecordConfig(), path: path);
           setState(() {
-            _recordDuration = _formatDuration(elapsed);
+            _isRecording = true;
+            _recordStartTime = DateTime.now();
           });
-        });
-      }
+          _recordTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+            if (!_isRecording) return;
+            final elapsed = DateTime.now().difference(_recordStartTime!);
+            setState(() {
+              _recordDuration = _formatDuration(elapsed);
+            });
+          });
+        } else {
+          _showSnack('Microphone permission denied.');
+        }
     } catch (e) {
       _showSnack('Could not start recording: $e');
     }
@@ -713,12 +715,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       if (type == MessageType.image) {
         file = await _picker.pickImage(
           source: source,
-          maxWidth: 1920,
-          maxHeight: 1920,
-          imageQuality: 75,
+          maxWidth: 1080,
+          maxHeight: 1080,
+          imageQuality: 80,
         );
       } else {
-        file = await _picker.pickVideo(source: source);
+        file = await _picker.pickVideo(
+          source: source,
+          maxDuration: const Duration(seconds: 30),
+        );
       }
       if (file == null) return;
 

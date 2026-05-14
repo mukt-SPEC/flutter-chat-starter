@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
@@ -28,14 +28,16 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      floatingActionButtonTheme:  FloatingActionButtonThemeData(
         backgroundColor: primaryDark,
         foregroundColor: white,
         elevation: 0,
         hoverElevation: 0,
         focusElevation: 0,
         highlightElevation: 0,
-        shape: CircleBorder(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
         headlineLarge: const TextStyle(
@@ -81,6 +83,7 @@ class AppTheme {
           foregroundColor: white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
+          minimumSize: const Size(double.infinity, 54),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

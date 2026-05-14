@@ -1,4 +1,4 @@
-﻿import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_chat_starter/core/exceptions/app_exception.dart';
@@ -78,13 +78,19 @@ class AuthController extends AutoDisposeAsyncNotifier<void> {
 
   Future<void> signOut() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    try {
       final currentUser = ref.read(authRepositoryProvider).currentUser;
       if (currentUser != null) {
         await ref.read(userRepositoryProvider).updateLastSeen(currentUser.uid);
       }
       await ref.read(authRepositoryProvider).signOut();
-    });
+    } catch (e, st) {
+      try {
+        state = AsyncError(e, st);
+      } catch (_) {
+        // Ignore if disposed
+      }
+    }
   }
 
   static String toReadableError(Object error) {

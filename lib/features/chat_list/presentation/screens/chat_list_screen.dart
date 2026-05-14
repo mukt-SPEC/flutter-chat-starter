@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -188,7 +188,8 @@ class _ConversationTile extends ConsumerWidget {
         }
         return profile.displayName.isEmpty ? profile.email : profile.displayName;
       },
-      orElse: () => otherUserId.isEmpty ? 'Unknown chat' : otherUserId,
+      loading: () => 'Loading...',
+      orElse: () => otherUserId.isEmpty ? 'Unknown chat' : 'Loading...',
     );
 
     final subtitle = conversation.lastMessagePreview?.trim().isNotEmpty == true

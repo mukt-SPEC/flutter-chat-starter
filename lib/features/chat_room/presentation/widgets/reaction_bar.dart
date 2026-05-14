@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 import '../../../../core/theme.dart';
@@ -7,7 +7,7 @@ import '../../../../core/theme.dart';
 // Quick-pick reaction emojis
 // ---------------------------------------------------------------------------
 
-const _quickEmojis = ['ðŸ‘', 'â¤ï¸', 'ðŸ˜‚', 'ðŸ˜®', 'ðŸ˜¢', 'ðŸ”¥'];
+const _quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
 // ---------------------------------------------------------------------------
 // Reaction row displayed below a message bubble
@@ -20,7 +20,7 @@ class ReactionRow extends StatelessWidget {
     this.onTap,
   });
 
-  /// Map of userId â†’ emoji
+  /// Map of userId -> emoji
   final Map<String, String> reactions;
   final void Function(String emoji)? onTap;
 
@@ -70,7 +70,7 @@ class ReactionRow extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Reaction overlay â€” shown on long-press
+// Reaction overlay - shown on long-press
 // ---------------------------------------------------------------------------
 
 class ReactionOverlay extends StatelessWidget {
@@ -110,19 +110,22 @@ class ReactionOverlay extends StatelessWidget {
                 ),
               ],
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ..._quickEmojis.map((emoji) => _EmojiButton(
-                      emoji: emoji,
-                      onTap: () => onEmojiSelected(emoji),
-                    )),
-                const SizedBox(width: 4),
-                _CircleIconButton(
-                  icon: Icons.add,
-                  onTap: () => _openFullPicker(context),
-                ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ..._quickEmojis.map((emoji) => _EmojiButton(
+                        emoji: emoji,
+                        onTap: () => onEmojiSelected(emoji),
+                      )),
+                  const SizedBox(width: 4),
+                  _CircleIconButton(
+                    icon: Icons.add,
+                    onTap: () => _openFullPicker(context),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 8),

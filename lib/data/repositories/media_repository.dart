@@ -1,21 +1,23 @@
-﻿import 'dart:io';
+import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
+import 'package:video_compress/video_compress.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/exceptions/app_exception.dart';
 import '../../core/firebase_providers.dart';
+import '../../core/config/cloudinary_config.dart';
 import '../models/message.dart';
 
 const _uuid = Uuid();
 
 class MediaRepository {
-  MediaRepository(this._storage);
+  MediaRepository(this._cloudinary);
 
-  final FirebaseStorage _storage;
+  final Cloudinary _cloudinary;
 
   /// Upload a file and return its download URL.
   Future<String> uploadFile({
@@ -23,10 +25,22 @@ class MediaRepository {
     required String storagePath,
   }) async {
     try {
-      final file = File(localPath);
-      final ref = _storage.ref().child(storagePath);
-      final task = await ref.putFile(file);
-      return await task.ref.getDownloadURL();
+      final response = await _cloudinary.upload(
+        file: localPath,
+        fileBytes: File(localPath).readAsBytesSync(),
+        resourceType: CloudinaryResourceType.auto,
+        folder: p.dirname(storagePath),
+        fileName: p.basenameWithoutExtension(storagePath),
+        optParams: {
+          'upload_preset': CloudinaryConfig.uploadPreset,
+        },
+      );
+
+      if (response.isSuccessful && response.secureUrl != null) {
+        return response.secureUrl!;
+      } else {
+        throw Exception(response.error ?? 'Upload failed without error message');
+      }
     } catch (error, stackTrace) {
       throw AppExceptionMapper.from(
         error,
@@ -165,42 +179,55 @@ class MediaRepository {
 // ---------------------------------------------------------------------------
 
 Uint8List? _decodeAndCompressImage(Uint8List bytes) {
-  // Simple approach: just return the bytes as-is if we can't do better.
-  // In a real app you'd use the `image` package here for resizing.
-  // For now, we pass through â€” the file is already picked by image_picker
-  // which can provide maxWidth/maxHeight constraints.
-  if (bytes.length <= 500 * 1024) return null; // Skip if already small.
-  return bytes; // Placeholder â€” image_picker handles quality param.
+  // image_picker already handles maxWidth/maxHeight and quality constraints.
+  // We only reach here if the file is still very large (e.g. > 500KB).
+  // For the sake of the brief, we return as-is because image_picker did the heavy lifting.
+  return null; 
 }
 
 // ---------------------------------------------------------------------------
 // Platform-specific video compression (Android/iOS only)
 // ---------------------------------------------------------------------------
 
+bool _isVideoCompressing = false;
+
 Future<(String, int)?> _compressVideoNative(String filePath) async {
-  try {
-    // ignore: depend_on_referenced_packages
-    final videoCompress = await _getVideoCompress();
-    if (videoCompress == null) return null;
-    return videoCompress;
-  } catch (_) {
+  if (_isVideoCompressing) {
+    // If already compressing, wait or return null. 
     return null;
   }
-}
+  
+  if (!File(filePath).existsSync()) {
+    return null; // Don't attempt to compress if file is missing (e.g. from an old offline queue)
+  }
 
-Future<(String, int)?> _getVideoCompress() async {
+  _isVideoCompressing = true;
   try {
-    // We import dynamically to keep desktop builds clean.
-    // In practice, video_compress is tree-shaken on unsupported platforms.
-    return null; // Will be filled when actually running on mobile.
+    final info = await VideoCompress.compressVideo(
+      filePath,
+      quality: VideoQuality.MediumQuality,
+      deleteOrigin: false,
+      includeAudio: true,
+    );
+    if (info != null && info.path != null) {
+      return (info.path!, info.filesize ?? 0);
+    }
+    return null;
   } catch (_) {
     return null;
+  } finally {
+    _isVideoCompressing = false;
   }
 }
 
 Future<String?> _generateThumbnailNative(String filePath) async {
   try {
-    return null; // Placeholder for mobile-only thumbnail generation.
+    final thumbnailFile = await VideoCompress.getFileThumbnail(
+      filePath,
+      quality: 50,
+      position: -1,
+    );
+    return thumbnailFile.path;
   } catch (_) {
     return null;
   }
@@ -211,5 +238,5 @@ Future<String?> _generateThumbnailNative(String filePath) async {
 // ---------------------------------------------------------------------------
 
 final mediaRepositoryProvider = Provider<MediaRepository>((ref) {
-  return MediaRepository(ref.watch(firebaseStorageProvider));
+  return MediaRepository(ref.watch(cloudinaryProvider));
 });
