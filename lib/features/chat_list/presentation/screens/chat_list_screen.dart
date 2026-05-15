@@ -192,9 +192,45 @@ class _ConversationTile extends ConsumerWidget {
       orElse: () => otherUserId.isEmpty ? 'Unknown chat' : 'Loading...',
     );
 
-    final subtitle = conversation.lastMessagePreview?.trim().isNotEmpty == true
-        ? conversation.lastMessagePreview!.trim()
-        : 'No messages yet';
+    String cleanSubtitle = conversation.lastMessagePreview?.trim() ?? '';
+    if (cleanSubtitle.isEmpty) {
+      cleanSubtitle = 'No messages yet';
+    } else {
+      // Strip out the emojis if they exist from older messages
+      cleanSubtitle = cleanSubtitle.replaceAll('📷 ', '').replaceAll('🎥 ', '').replaceAll('🎤 ', '');
+    }
+
+    Widget subtitleWidget = Text(
+      cleanSubtitle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+
+    if (conversation.lastMessageType == 'image') {
+      subtitleWidget = Row(
+        children: [
+          const Icon(Icons.image, size: 16, color: Colors.grey),
+          const SizedBox(width: 4),
+          Expanded(child: subtitleWidget),
+        ],
+      );
+    } else if (conversation.lastMessageType == 'video') {
+      subtitleWidget = Row(
+        children: [
+          const Icon(Icons.videocam, size: 16, color: Colors.grey),
+          const SizedBox(width: 4),
+          Expanded(child: subtitleWidget),
+        ],
+      );
+    } else if (conversation.lastMessageType == 'audio') {
+      subtitleWidget = Row(
+        children: [
+          const Icon(Icons.mic, size: 16, color: Colors.grey),
+          const SizedBox(width: 4),
+          Expanded(child: subtitleWidget),
+        ],
+      );
+    }
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -206,11 +242,7 @@ class _ConversationTile extends ConsumerWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(
-        subtitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: subtitleWidget,
       trailing: _TimeLabel(timestamp: conversation.lastMessageAt),
       onTap: onTap,
     );
@@ -242,11 +274,18 @@ Future<void> _showChatSearchDialog(BuildContext context, WidgetRef ref) async {
     context: context,
     builder: (context) {
       return AlertDialog(
+        scrollable: true,
         title: const Text('Search chats'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Search by last message text',
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                controller.clear();
+              },
+            ),
           ),
           autofocus: true,
         ),
@@ -255,13 +294,9 @@ Future<void> _showChatSearchDialog(BuildContext context, WidgetRef ref) async {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, ''),
-            child: const Text('Clear'),
-          ),
           FilledButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Apply'),
+            child: const Text('Search'),
           ),
         ],
       );
@@ -316,8 +351,12 @@ class _NewChatCupertinoModalState
     final existingPartners = ref.watch(existingChatPartnerIdsProvider);
     final isCreating = ref.watch(newChatControllerProvider).isLoading;
 
-    return CupertinoActionSheet(
-      title: const Text('New chat'),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: CupertinoActionSheet(
+        title: const Text('New chat'),
       message: Material(
         color: Colors.transparent,
         child: Column(
@@ -410,7 +449,7 @@ class _NewChatCupertinoModalState
         onPressed: () => Navigator.of(context).pop(),
         child: const Text('Close'),
       ),
-    );
+    ));
   }
 
   Future<void> _onUserSelected(BuildContext context, UserProfile user) async {

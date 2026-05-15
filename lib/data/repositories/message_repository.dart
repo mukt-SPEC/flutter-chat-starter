@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -82,11 +82,11 @@ class MessageRepository {
       String preview;
       switch (type) {
         case MessageType.image:
-          preview = 'ðŸ“· Photo';
+          preview = 'Photo';
         case MessageType.video:
-          preview = 'ðŸŽ¥ Video';
+          preview = 'Video';
         case MessageType.audio:
-          preview = 'ðŸŽ¤ Audio';
+          preview = 'Audio';
         case MessageType.system:
           preview = text ?? '';
         case MessageType.text:

@@ -2,6 +2,11 @@
 
 This is a fully featured chat application built on top of the intentionally rough baseline. All required features have been implemented following best practices for performance, offline sync, and premium aesthetics.
 
+## App Demo
+
+Watch the application in action here: [YouTube Video Demo](https://youtu.be/EgzOr8HGlj0)
+
+
 ## Features Implemented
 
 ### Core Features
